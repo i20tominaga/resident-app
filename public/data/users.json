@@ -1,0 +1,46 @@
+{
+  "users": [
+    {
+      "id": "user-001",
+      "email": "resident@example.com",
+      "password": "password123",
+      "displayName": "Tanaka Taro",
+      "role": "resident",
+      "buildingId": "bldg-001",
+      "floorNumber": 15,
+      "unitNumber": "1501",
+      "facilitiesOfInterest": ["fac-002", "fac-003"],
+      "timePreferences": [
+        {
+          "startHour": 7,
+          "endHour": 9,
+          "label": "朝間工事"
+        },
+        {
+          "startHour": 19,
+          "endHour": 23,
+          "label": "夜間工事"
+        }
+      ],
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "user-002",
+      "email": "staff@example.com",
+      "password": "staffpass123",
+      "displayName": "Suzuki Hanako",
+      "role": "staff",
+      "buildingId": "bldg-001",
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "user-003",
+      "email": "admin@example.com",
+      "password": "adminpass123",
+      "displayName": "Yamada Admin",
+      "role": "admin",
+      "buildingId": "bldg-001",
+      "createdAt": "2024-01-01T00:00:00Z"
+    }
+  ]
+}

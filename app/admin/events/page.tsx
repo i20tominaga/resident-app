@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockConstructionEvents } from '@/lib/mock-data';
+import { loadEvents } from '@/lib/data-loader';
 import { Search, Plus, Eye, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { ConstructionEvent } from '@/lib/types';
 
 const getTypeColor = (type: string) => {
   switch (type) {
@@ -37,16 +38,33 @@ const getTypeLabel = (type: string) => {
 export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [allEvents, setAllEvents] = useState<ConstructionEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const events = await loadEvents();
+        setAllEvents(events);
+      } catch (error) {
+        console.error('Error loading events:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const filteredEvents = useMemo(() => {
-    return mockConstructionEvents.filter(event => {
+    return allEvents.filter(event => {
       const matchesSearch =
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = !filterStatus || event.status === filterStatus;
       return matchesSearch && matchesStatus;
     });
-  }, [searchQuery, filterStatus]);
+  }, [searchQuery, filterStatus, allEvents]);
 
   const stats = useMemo(() => {
     return {

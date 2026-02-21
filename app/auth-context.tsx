@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/lib/types';
-import { mockCurrentUser } from '@/lib/mock-data';
+import { getUserByEmail } from '@/lib/data-loader';
 
 interface AuthContextType {
   user: User | null;
@@ -35,15 +35,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Fetch user from JSON data
+      const dbUser = await getUserByEmail(email);
       
-      if (email === mockCurrentUser.email && password === 'password123') {
-        setUser(mockCurrentUser);
-        localStorage.setItem('auth_user', JSON.stringify(mockCurrentUser));
-      } else {
+      if (!dbUser) {
         throw new Error('Invalid credentials');
       }
+
+      // Simple password check (in production, use bcrypt)
+      const userWithPassword = dbUser as any;
+      if (userWithPassword.password !== password) {
+        throw new Error('Invalid credentials');
+      }
+
+      // Remove password from client-side storage
+      const { password: _, ...userWithoutPassword } = userWithPassword;
+      
+      setUser(userWithoutPassword as User);
+      localStorage.setItem('auth_user', JSON.stringify(userWithoutPassword));
     } finally {
       setIsLoading(false);
     }

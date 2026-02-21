@@ -1,15 +1,16 @@
 'use client';
 
 import { useAuth } from '@/app/auth-context';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { mockConstructionEvents, mockNotifications } from '@/lib/mock-data';
+import { loadEvents, getNotificationsByUser } from '@/lib/data-loader';
 import { getOngoingEvents, getEventsInNextDays, calculateRelevanceScores } from '@/lib/personalization';
 import { AlertTriangle, Calendar, Bell, MapPin, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { ConstructionEvent, Notification } from '@/lib/types';
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -60,23 +61,46 @@ const getNoiseLevelLabel = (level?: string) => {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [events, setEvents] = useState<ConstructionEvent[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const loadedEvents = await loadEvents();
+        setEvents(loadedEvents);
+
+        if (user) {
+          const userNotifications = await getNotificationsByUser(user.id);
+          setNotifications(userNotifications);
+        }
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [user]);
 
   const ongoingEvents = useMemo(() => {
-    return getOngoingEvents(mockConstructionEvents);
-  }, []);
+    return getOngoingEvents(events);
+  }, [events]);
 
   const upcomingEvents = useMemo(() => {
-    return getEventsInNextDays(mockConstructionEvents, 14);
-  }, []);
+    return getEventsInNextDays(events, 14);
+  }, [events]);
 
   const relevanceScores = useMemo(() => {
     if (!user) return [];
-    return calculateRelevanceScores(user, mockConstructionEvents);
-  }, [user]);
+    return calculateRelevanceScores(user, events);
+  }, [user, events]);
 
   const unreadNotifications = useMemo(() => {
-    return mockNotifications.filter(n => !n.isRead);
-  }, []);
+    return notifications.filter(n => !n.isRead);
+  }, [notifications]);
 
   const getRelevanceInfo = (eventId: string) => {
     return relevanceScores.find(rs => rs.eventId === eventId);

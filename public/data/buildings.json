@@ -1,0 +1,42 @@
+{
+  "buildings": [
+    {
+      "id": "bldg-001",
+      "name": "シティタワー東京",
+      "address": "東京都渋谷区",
+      "totalFloors": 35,
+      "totalUnits": 280,
+      "managementCompany": "三菱地所リアルティ",
+      "features": [
+        {
+          "id": "fac-001",
+          "name": "駐車場 B1F",
+          "buildingId": "bldg-001",
+          "floor": -1,
+          "type": "parking"
+        },
+        {
+          "id": "fac-002",
+          "name": "フィットネスジム",
+          "buildingId": "bldg-001",
+          "floor": 2,
+          "type": "gym"
+        },
+        {
+          "id": "fac-003",
+          "name": "ロビー",
+          "buildingId": "bldg-001",
+          "floor": 1,
+          "type": "lobby"
+        },
+        {
+          "id": "fac-004",
+          "name": "ラウンジ",
+          "buildingId": "bldg-001",
+          "floor": 30,
+          "type": "common"
+        }
+      ]
+    }
+  ]
+}

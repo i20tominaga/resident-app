@@ -1,23 +1,41 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { mockFAQs } from '@/lib/mock-data';
+import { loadFAQs } from '@/lib/data-loader';
 import { Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { FAQ } from '@/lib/types';
 
 export default function FAQPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFAQId, setExpandedFAQId] = useState<string | null>(null);
+  const [allFAQs, setAllFAQs] = useState<FAQ[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const categories = useMemo(() => {
-    const cats = new Set(mockFAQs.map(faq => faq.category));
-    return Array.from(cats);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const faqs = await loadFAQs();
+        setAllFAQs(faqs);
+      } catch (error) {
+        console.error('Error loading FAQs:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
+  const categories = useMemo(() => {
+    const cats = new Set(allFAQs.map(faq => faq.category));
+    return Array.from(cats);
+  }, [allFAQs]);
+
   const filteredFAQs = useMemo(() => {
-    return mockFAQs.filter(faq => {
+    return allFAQs.filter(faq => {
       const query = searchQuery.toLowerCase();
       return (
         faq.question.toLowerCase().includes(query) ||
@@ -25,10 +43,10 @@ export default function FAQPage() {
         faq.category.toLowerCase().includes(query)
       );
     });
-  }, [searchQuery]);
+  }, [searchQuery, allFAQs]);
 
   const faqsByCategory = useMemo(() => {
-    const grouped: Record<string, typeof mockFAQs> = {};
+    const grouped: Record<string, FAQ[]> = {};
     filteredFAQs.forEach(faq => {
       if (!grouped[faq.category]) {
         grouped[faq.category] = [];

@@ -1,12 +1,13 @@
 'use client';
 
 import { useAuth } from '@/app/auth-context';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { mockConstructionEvents } from '@/lib/mock-data';
+import { loadEvents } from '@/lib/data-loader';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ConstructionEvent } from '@/lib/types';
 
 const getTypeColor = (type: string) => {
   switch (type) {
@@ -36,6 +37,23 @@ const getTypeLabel = (type: string) => {
 export default function CalendarPage() {
   const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date(2025, 1, 1));
+  const [allEvents, setAllEvents] = useState<ConstructionEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const events = await loadEvents();
+        setAllEvents(events);
+      } catch (error) {
+        console.error('Error loading events:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const daysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -46,25 +64,22 @@ export default function CalendarPage() {
   };
 
   const eventsForMonth = useMemo(() => {
-    const events: Record<number, typeof mockConstructionEvents> = {};
+    const events: Record<number, ConstructionEvent[]> = {};
 
-    mockConstructionEvents.forEach(event => {
-      const eventMonth = event.startDate.getMonth();
-      const eventYear = event.startDate.getFullYear();
-      const currentMonth = currentDate.getMonth();
-      const currentYear = currentDate.getFullYear();
-
-      if (eventMonth === currentMonth && eventYear === currentYear) {
-        const day = event.startDate.getDate();
-        if (!events[day]) {
-          events[day] = [];
-        }
+    allEvents.forEach(event => {
+      const eventStart = new Date(event.startDate);
+      if (
+        eventStart.getFullYear() === currentDate.getFullYear() &&
+        eventStart.getMonth() === currentDate.getMonth()
+      ) {
+        const day = eventStart.getDate();
+        if (!events[day]) events[day] = [];
         events[day].push(event);
       }
     });
 
     return events;
-  }, [currentDate]);
+  }, [currentDate, allEvents]);
 
   const previousMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
