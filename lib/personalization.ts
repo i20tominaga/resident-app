@@ -129,14 +129,14 @@ export function getUpcomingEvents(events: ConstructionEvent[]): ConstructionEven
  * Get ongoing events
  */
 export function getOngoingEvents(events: ConstructionEvent[]): ConstructionEvent[] {
-  const now = new Date();
   return events
-    .filter(event => {
-      return event.status === 'in_progress' &&
-             event.startDate <= now &&
-             event.endDate >= now;
-    })
-    .sort((a, b) => a.endDate.getTime() - b.endDate.getTime());
+    .filter(event => event.status === 'in_progress')
+    .sort((a, b) => {
+      // Sort by end date to show those ending sooner first
+      const dateA = new Date(event.endDate);
+      const dateB = new Date(event.endDate);
+      return dateA.getTime() - dateB.getTime();
+    });
 }
 
 /**

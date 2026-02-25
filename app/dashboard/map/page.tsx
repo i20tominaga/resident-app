@@ -125,16 +125,17 @@ export default function MapPage() {
                       const hasInProgress = affectedEvents.some(e => e.status === 'in_progress');
                       const hasScheduled = affectedEvents.some(e => e.status === 'scheduled');
 
+                      let statusIndicatorColor = 'bg-border';
+                      if (hasInProgress) {
+                        statusIndicatorColor = 'bg-destructive';
+                      } else if (hasScheduled) {
+                        statusIndicatorColor = 'bg-accent';
+                      }
+
                       return (
                         <div
                           key={floor}
-                          className={`p-3 rounded-lg border-2 transition cursor-pointer ${
-                            hasInProgress
-                              ? getStatusColor('in_progress')
-                              : hasScheduled
-                              ? getStatusColor('scheduled')
-                              : 'bg-muted border-border hover:bg-secondary'
-                          }`}
+                          className="p-3 rounded-lg border-2 border-border bg-card hover:bg-secondary transition cursor-pointer flex items-center gap-3"
                           onClick={() =>
                             setSelectedEventId(
                               affectedEvents.length > 0
@@ -143,22 +144,26 @@ export default function MapPage() {
                             )
                           }
                         >
-                          <div className="flex items-center justify-between">
+                          {/* Status indicator dot */}
+                          <div className={`w-3 h-3 rounded-full flex-shrink-0 ${statusIndicatorColor}`} />
+                          
+                          <div className="flex-1">
                             <span className="font-medium text-foreground">{floorLabel}</span>
-                            {affectedEvents.length > 0 && (
-                              <div className="flex gap-1">
-                                {affectedEvents.slice(0, 3).map(event => (
-                                  <div
-                                    key={event.id}
-                                    className={`w-4 h-4 rounded-full border-2 ${getTypeColor(
-                                      event.type
-                                    )}`}
-                                    title={event.title}
-                                  />
-                                ))}
-                              </div>
-                            )}
                           </div>
+                          
+                          {affectedEvents.length > 0 && (
+                            <div className="flex gap-1 flex-shrink-0">
+                              {affectedEvents.slice(0, 3).map(event => (
+                                <div
+                                  key={event.id}
+                                  className={`w-3 h-3 rounded-full border-2 ${getTypeColor(
+                                    event.type
+                                  )}`}
+                                  title={event.title}
+                                />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
