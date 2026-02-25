@@ -11,9 +11,15 @@
       "endDate": "2025-03-10",
       "startTime": "09:00",
       "endTime": "17:00",
-      "affectedFloors": [],
-      "affectedFacilities": ["fac-001"],
-      "affectedAreas": ["駐車場全体"],
+      "affectedFloors": [
+        -1
+      ],
+      "affectedFacilities": [
+        "fac-001"
+      ],
+      "affectedAreas": [
+        "駐車場全体"
+      ],
       "noiseLevel": "high",
       "accessRestrictions": true,
       "details": "安全確保のため、工事期間中は駐車スペースが限定されます。詳細は別途掲示板にてお知らせします。",
@@ -34,9 +40,15 @@
       "endDate": "2025-02-25",
       "startTime": "18:00",
       "endTime": "21:00",
-      "affectedFloors": [],
-      "affectedFacilities": ["fac-002"],
-      "affectedAreas": ["2階ジム"],
+      "affectedFloors": [
+        2
+      ],
+      "affectedFacilities": [
+        "fac-002"
+      ],
+      "affectedAreas": [
+        "2階ジム"
+      ],
       "noiseLevel": "low",
       "accessRestrictions": true,
       "details": "夜間のみの工事となります。ジムは使用不可になります。",
@@ -55,9 +67,24 @@
       "endDate": "2025-03-15",
       "startTime": "08:00",
       "endTime": "18:00",
-      "affectedFloors": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      "affectedFloors": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
       "affectedFacilities": [],
-      "affectedAreas": ["北側外壁", "東側外壁"],
+      "affectedAreas": [
+        "北側外壁",
+        "東側外壁"
+      ],
       "noiseLevel": "medium",
       "accessRestrictions": false,
       "details": "足場を組んで調査します。音や振動が発生する可能性があります。",
@@ -78,9 +105,15 @@
       "endDate": "2025-04-30",
       "startTime": "10:00",
       "endTime": "18:00",
-      "affectedFloors": [],
-      "affectedFacilities": ["fac-003"],
-      "affectedAreas": ["1階ロビー"],
+      "affectedFloors": [
+        1
+      ],
+      "affectedFacilities": [
+        "fac-003"
+      ],
+      "affectedAreas": [
+        "1階ロビー"
+      ],
       "noiseLevel": "high",
       "accessRestrictions": false,
       "details": "営業時間中の工事となります。騒音が発生しますがご理解よろしくお願いします。",

@@ -4,9 +4,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { loadEvents } from '@/lib/data-loader';
+import { loadEvents, loadBuildings } from '@/lib/data-loader';
 import { MapPin, AlertTriangle, Eye, EyeOff } from 'lucide-react';
-import { ConstructionEvent } from '@/lib/types';
+import { ConstructionEvent, Facility } from '@/lib/types';
 
 const getTypeColor = (type: string) => {
   switch (type) {
@@ -51,15 +51,19 @@ export default function MapPage() {
   const [showOngoing, setShowOngoing] = useState(true);
   const [showScheduled, setShowScheduled] = useState(true);
   const [allEvents, setAllEvents] = useState<ConstructionEvent[]>([]);
+  const [facilities, setFacilities] = useState<Facility[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const events = await loadEvents();
+        const [events, buildings] = await Promise.all([loadEvents(), loadBuildings()]);
         setAllEvents(events);
+        // Collect all facilities from all buildings
+        const allFacilities = buildings.flatMap(b => b.features || []);
+        setFacilities(allFacilities);
       } catch (error) {
-        console.error('Error loading events:', error);
+        console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -67,6 +71,17 @@ export default function MapPage() {
 
     loadData();
   }, []);
+
+  // Build a map from facility ID to floor number
+  const facilityFloorMap = useMemo(() => {
+    const map = new Map<string, number>();
+    facilities.forEach(fac => {
+      if (fac.floor !== undefined) {
+        map.set(fac.id, fac.floor);
+      }
+    });
+    return map;
+  }, [facilities]);
 
   const filteredEvents = useMemo(() => {
     return allEvents.filter(event => {
@@ -110,17 +125,17 @@ export default function MapPage() {
                     {[30, 25, 20, 15, 10, 5, 1, -1].map(floor => {
                       const affectedEvents = filteredEvents.filter(event =>
                         event.affectedFloors.includes(floor) ||
-                        (floor === -1 && event.affectedFacilities.some(fac => fac.includes('駐車場')))
+                        event.affectedFacilities.some(facId => facilityFloorMap.get(facId) === floor)
                       );
 
                       const floorLabel =
                         floor === -1
                           ? 'B1F (駐車場)'
                           : floor === 1
-                          ? '1F (ロビー)'
-                          : floor === 2
-                          ? '2F (ジム)'
-                          : `${floor}F`;
+                            ? '1F (ロビー)'
+                            : floor === 2
+                              ? '2F (ジム)'
+                              : `${floor}F`;
 
                       const hasInProgress = affectedEvents.some(e => e.status === 'in_progress');
                       const hasScheduled = affectedEvents.some(e => e.status === 'scheduled');
@@ -146,11 +161,11 @@ export default function MapPage() {
                         >
                           {/* Status indicator dot */}
                           <div className={`w-3 h-3 rounded-full flex-shrink-0 ${statusIndicatorColor}`} />
-                          
+
                           <div className="flex-1">
                             <span className="font-medium text-foreground">{floorLabel}</span>
                           </div>
-                          
+
                           {affectedEvents.length > 0 && (
                             <div className="flex gap-1 flex-shrink-0">
                               {affectedEvents.slice(0, 3).map(event => (
@@ -268,8 +283,8 @@ export default function MapPage() {
                         {selectedEvent.noiseLevel === 'high'
                           ? '高い'
                           : selectedEvent.noiseLevel === 'medium'
-                          ? '中程度'
-                          : '低い'}
+                            ? '中程度'
+                            : '低い'}
                       </p>
                     )}
                     {selectedEvent.contractor && (
@@ -309,12 +324,11 @@ export default function MapPage() {
                   <div
                     key={event.id}
                     onClick={() => setSelectedEventId(event.id)}
-                    className={`p-3 rounded-lg border-2 cursor-pointer transition ${
-                      selectedEventId === event.id
-                        ? getStatusColor(event.status) +
-                          ' ring-2 ring-primary'
-                        : getStatusColor(event.status)
-                    }`}
+                    className={`p-3 rounded-lg border-2 cursor-pointer transition ${selectedEventId === event.id
+                      ? getStatusColor(event.status) +
+                      ' ring-2 ring-primary'
+                      : getStatusColor(event.status)
+                      }`}
                   >
                     <p className="font-medium text-sm text-foreground">
                       {event.title}
