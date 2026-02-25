@@ -12,15 +12,15 @@ import { ConstructionEvent } from '@/lib/types';
 const getTypeColor = (type: string) => {
   switch (type) {
     case 'construction':
-      return 'bg-red-100 text-red-800 border-red-300';
+      return 'bg-destructive/10 text-destructive border-destructive/20';
     case 'inspection':
-      return 'bg-blue-100 text-blue-800 border-blue-300';
+      return 'bg-primary/10 text-primary border-primary/20';
     case 'maintenance':
-      return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      return 'bg-accent/10 text-accent border-accent/20';
     case 'repair':
-      return 'bg-purple-100 text-purple-800 border-purple-300';
+      return 'bg-accent/10 text-accent border-accent/20';
     default:
-      return 'bg-gray-100 text-gray-800 border-gray-300';
+      return 'bg-muted text-muted-foreground border-border';
   }
 };
 
@@ -190,20 +190,21 @@ export default function CalendarPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockConstructionEvents
+            {allEvents
               .filter(event => {
-                const eventMonth = event.startDate.getMonth();
-                const eventYear = event.startDate.getFullYear();
+                const eventStart = new Date(event.startDate);
+                const eventMonth = eventStart.getMonth();
+                const eventYear = eventStart.getFullYear();
                 const currentMonth = currentDate.getMonth();
                 const currentYear = currentDate.getFullYear();
                 return eventMonth === currentMonth && eventYear === currentYear;
               })
-              .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+              .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
               .map(event => (
-                <div key={event.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                <div key={event.id} className="border border-border rounded-lg p-4 hover:bg-secondary transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">{event.title}</h3>
+                      <h3 className="font-semibold text-foreground">{event.title}</h3>
                       <Badge className={getTypeColor(event.type)}>
                         {getTypeLabel(event.type)}
                       </Badge>
@@ -215,7 +216,7 @@ export default function CalendarPage() {
                     </Badge>
                   </div>
 
-                  <p className="text-sm text-gray-700 mb-3">{event.description}</p>
+                  <p className="text-sm text-muted-foreground mb-3">{event.description}</p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
