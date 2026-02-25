@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { loadEvents } from '@/lib/data-loader';
+import { loadEvents, loadBuildings } from '@/lib/data-loader';
 import { MapPin, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { ConstructionEvent } from '@/lib/types';
 
@@ -51,6 +51,7 @@ export default function MapPage() {
   const [showOngoing, setShowOngoing] = useState(true);
   const [showScheduled, setShowScheduled] = useState(true);
   const [allEvents, setAllEvents] = useState<ConstructionEvent[]>([]);
+  const [facilityLookup, setFacilityLookup] = useState<Record<string, { floor: number; name: string }>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -58,6 +59,15 @@ export default function MapPage() {
       try {
         const events = await loadEvents();
         setAllEvents(events);
+        
+        const buildings = await loadBuildings();
+        const lookup: Record<string, { floor: number; name: string }> = {};
+        buildings.forEach(building => {
+          building.features?.forEach(facility => {
+            lookup[facility.id] = { floor: facility.floor, name: facility.name };
+          });
+        });
+        setFacilityLookup(lookup);
       } catch (error) {
         console.error('Error loading events:', error);
       } finally {
@@ -108,10 +118,20 @@ export default function MapPage() {
                   <div className="space-y-2">
                     {/* Affected Areas Highlighted */}
                     {[30, 25, 20, 15, 10, 5, 1, -1].map(floor => {
-                      const affectedEvents = filteredEvents.filter(event =>
-                        event.affectedFloors.includes(floor) ||
-                        (floor === -1 && event.affectedFacilities.some(fac => fac.includes('駐車場')))
-                      );
+                      const affectedEvents = filteredEvents.filter(event => {
+                        // Check if event affects this floor directly
+                        if (event.affectedFloors.includes(floor)) return true;
+                        
+                        // Check if event affects facilities on this floor
+                        if (event.affectedFacilities.length > 0) {
+                          return event.affectedFacilities.some(facId => {
+                            const facility = facilityLookup[facId];
+                            return facility && facility.floor === floor;
+                          });
+                        }
+                        
+                        return false;
+                      });
 
                       const floorLabel =
                         floor === -1
