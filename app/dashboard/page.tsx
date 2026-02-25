@@ -153,7 +153,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
+                <AlertTriangle className="w-5 h-5 text-destructive" />
                 進行中の工事
               </CardTitle>
               <CardDescription>
@@ -162,31 +162,31 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {ongoingEvents.length === 0 ? (
-                <p className="text-gray-500 text-sm">進行中の工事はありません</p>
+                <p className="text-muted-foreground text-sm">進行中の工事はありません</p>
               ) : (
                 ongoingEvents.map(event => {
                   const relevance = getRelevanceInfo(event.id);
                   return (
-                    <div key={event.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                    <div key={event.id} className="border border-border rounded-lg p-4 hover:bg-secondary transition-colors">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-gray-900">{event.title}</h3>
+                            <h3 className="font-semibold text-foreground">{event.title}</h3>
                             {getStatusBadge(event.status)}
                           </div>
-                          <p className="text-sm text-gray-600">{getTypeLabel(event.type)}</p>
+                          <p className="text-sm text-muted-foreground">{getTypeLabel(event.type)}</p>
                         </div>
                         {relevance && relevance.score >= 50 && (
-                          <Badge className="bg-orange-100 text-orange-800">関連度高</Badge>
+                          <Badge className="bg-accent/10 text-accent border border-accent/20">関連度高</Badge>
                         )}
                       </div>
 
-                      <p className="text-sm text-gray-700 mb-3">{event.description}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{event.description}</p>
 
                       <div className="space-y-2 mb-3">
-                        <div className="text-xs text-gray-600 space-y-1">
+                        <div className="text-xs text-muted-foreground space-y-1">
                           <p>
-                            <strong>期間：</strong> {event.startDate.toLocaleDateString('ja-JP')} ～ {event.endDate.toLocaleDateString('ja-JP')}
+                            <strong>期間：</strong> {typeof event.startDate === 'string' ? event.startDate : event.startDate.toLocaleDateString('ja-JP')} ～ {typeof event.endDate === 'string' ? event.endDate : event.endDate.toLocaleDateString('ja-JP')}
                           </p>
                           {event.startTime && event.endTime && (
                             <p>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                           )}
                           {event.noiseLevel && (
                             <p className={`inline-block px-2 py-1 rounded ${getNoiseLevelColor(event.noiseLevel)}`}>
-                              <strong>���音：</strong> {getNoiseLevelLabel(event.noiseLevel)}
+                              <strong>騒音レベル：</strong> {getNoiseLevelLabel(event.noiseLevel)}
                             </p>
                           )}
                           {event.affectedAreas.length > 0 && (
@@ -205,9 +205,10 @@ export default function DashboardPage() {
                           )}
                         </div>
                       </div>
+                      </div>
 
                       {relevance && relevance.reasons.length > 0 && (
-                        <div className="bg-blue-50 p-2 rounded text-xs text-blue-800 space-y-1">
+                        <div className="bg-primary/10 border border-primary/20 p-2 rounded text-xs text-foreground space-y-1">
                           <p className="font-medium">あなたに関連している理由：</p>
                           {relevance.reasons.map((reason, idx) => (
                             <p key={idx}>• {reason}</p>
