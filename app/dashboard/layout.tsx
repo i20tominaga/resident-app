@@ -40,10 +40,10 @@ export default function DashboardLayout({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Building2 className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-pulse" />
-          <p className="text-gray-600">読み込み中...</p>
+          <Building2 className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">読み込み中…</p>
         </div>
       </div>
     );
@@ -54,61 +54,61 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
       {sidebarOpen && (
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div className="w-64 bg-card border-r border-border flex flex-col">
           {/* Logo */}
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-6 border-b border-border">
             <div className="flex items-center gap-2">
-              <Building2 className="w-8 h-8 text-blue-600" />
+              <Building2 className="w-8 h-8 text-primary" />
               <div>
-                <h1 className="text-lg font-bold text-gray-900">Building Navigator</h1>
-                <p className="text-xs text-gray-500">工事・点検情報</p>
+                <h1 className="text-base font-semibold text-foreground">Building Navigator</h1>
+                <p className="text-xs text-muted-foreground">工事・点検情報</p>
               </div>
             </div>
           </div>
 
           {/* User Info */}
-          <div className="px-6 py-4 border-b border-gray-200">
-            <p className="text-sm font-medium text-gray-900">{user?.displayName}</p>
-            <p className="text-xs text-gray-500">{user?.email}</p>
+          <div className="px-6 py-4 border-b border-border">
+            <p className="text-sm font-medium text-foreground">{user?.displayName}</p>
+            <p className="text-xs text-muted-foreground">{user?.email}</p>
             {user?.floorNumber && (
-              <p className="text-xs text-gray-500 mt-1">{user.floorNumber}階 {user?.unitNumber}</p>
+              <p className="text-xs text-muted-foreground mt-1">{user.floorNumber}階 {user?.unitNumber}</p>
             )}
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
-            <a href="/dashboard" className="block px-4 py-2 text-gray-900 font-medium rounded-lg bg-blue-50 border border-blue-200">
+          <nav className="flex-1 px-4 py-6 space-y-1">
+            <a href="/dashboard" className="block px-4 py-2 text-foreground font-medium rounded-lg bg-primary/10 border border-primary/20 transition-colors">
               ダッシュボード
             </a>
-            <a href="/dashboard/calendar" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <a href="/dashboard/calendar" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
               カレンダー
             </a>
-            <a href="/dashboard/map" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <a href="/dashboard/map" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
               工事マップ
             </a>
-            <a href="/dashboard/faq" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <a href="/dashboard/faq" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
               よくある質問
             </a>
-            <a href="/dashboard/inquiry" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
-              質問フォーム
+            <a href="/dashboard/inquiry" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
+              ご質問・ご不安
             </a>
-            <a href="/dashboard/settings" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <a href="/dashboard/settings" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
               設定
             </a>
           </nav>
 
           {/* Logout */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-border">
             <Button
               onClick={handleLogout}
               variant="outline"
               className="w-full justify-start"
             >
               <LogOut className="w-4 h-4 mr-2" />
-              ログアウト
+              ログアウトする
             </Button>
           </div>
         </div>

@@ -40,11 +40,11 @@ const getTypeLabel = (type: string) => {
 const getNoiseLevelColor = (level?: string) => {
   switch (level) {
     case 'high':
-      return 'text-red-600 bg-red-50';
+      return 'text-destructive bg-destructive/10';
     case 'medium':
-      return 'text-yellow-600 bg-yellow-50';
+      return 'text-accent bg-accent/10';
     case 'low':
-      return 'text-green-600 bg-green-50';
+      return 'text-primary bg-primary/10';
     default:
       return '';
   }
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                           )}
                           {event.noiseLevel && (
                             <p className={`inline-block px-2 py-1 rounded ${getNoiseLevelColor(event.noiseLevel)}`}>
-                              <strong>騒音：</strong> {getNoiseLevelLabel(event.noiseLevel)}
+                              <strong>���音：</strong> {getNoiseLevelLabel(event.noiseLevel)}
                             </p>
                           )}
                           {event.affectedAreas.length > 0 && (

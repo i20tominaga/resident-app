@@ -55,9 +55,9 @@ export default function NewEventPage() {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.back()}
-          className="p-2 hover:bg-gray-100 rounded-lg"
+          className="p-2 hover:bg-secondary rounded-lg transition-colors"
         >
-          <ArrowLeft className="w-6 h-6 text-gray-600" />
+          <ArrowLeft className="w-6 h-6 text-primary" />
         </button>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">新しい工事を登録</h1>

@@ -30,29 +30,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Building2 className="w-12 h-12 text-blue-600" />
+            <Building2 className="w-10 h-10 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Building Navigator</h1>
-          <p className="text-gray-600 mt-2">工事・点検情報の見える化</p>
+          <h1 className="text-2xl font-semibold text-foreground text-center">Building Navigator</h1>
+          <p className="text-muted-foreground text-center mt-1">工事・点検情報の見える化</p>
         </div>
 
         {/* Login Card */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="space-y-2">
-            <CardTitle>住民ログイン</CardTitle>
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl">ログインする</CardTitle>
             <CardDescription>
-              メールアドレスとパスワードでログインしてください
+              メールアドレスとパスワードを入力してください
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="text-sm font-medium text-foreground">
                   メールアドレス
                 </label>
                 <Input
@@ -67,7 +67,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="text-sm font-medium text-foreground">
                   パスワード
                 </label>
                 <Input
@@ -90,10 +90,10 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-primary hover:bg-primary/90"
                 disabled={isLoading}
               >
-                {isLoading ? 'ログイン中...' : 'ログイン'}
+                {isLoading ? 'ログイン中...' : 'ログインする'}
               </Button>
             </form>
           </CardContent>
@@ -101,19 +101,13 @@ export default function LoginPage() {
 
         {/* Demo Hint */}
         {showHint && (
-          <Alert className="mt-6 bg-blue-50 border-blue-200">
-            <CheckCircle2 className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-sm text-blue-800">
-              <button
-                onClick={() => setShowHint(false)}
-                className="text-xs float-right text-blue-600 hover:text-blue-800 underline"
-              >
-                閉じる
-              </button>
-              <strong>デモアカウント情報：</strong>
-              <br/>
+          <Alert className="mt-6 bg-secondary border-border">
+            <AlertCircle className="h-4 w-4 text-primary" />
+            <AlertDescription className="text-foreground text-sm">
+              <strong>デモアカウント</strong>
+              <br />
               メール: resident@example.com
-              <br/>
+              <br />
               パスワード: password123
             </AlertDescription>
           </Alert>
