@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/app/auth-context';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Building2, LogOut, Menu, X } from 'lucide-react';
@@ -13,8 +13,15 @@ export default function DashboardLayout({
 }) {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+
+  const isActive = (href: string) => {
+    if (href === '/dashboard' && pathname === '/dashboard') return true;
+    if (href !== '/dashboard' && pathname.startsWith(href)) return true;
+    return false;
+  };
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -80,22 +87,64 @@ export default function DashboardLayout({
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-1">
-            <a href="/dashboard" className="block px-4 py-2 text-foreground font-medium rounded-lg bg-primary/10 border border-primary/20 transition-colors">
+            <a 
+              href="/dashboard" 
+              className={`block px-4 py-2 rounded-lg transition-colors ${
+                isActive('/dashboard')
+                  ? 'text-foreground font-medium rounded-lg bg-primary/10 border border-primary/20'
+                  : 'text-foreground hover:bg-secondary'
+              }`}
+            >
               ダッシュボード
             </a>
-            <a href="/dashboard/calendar" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
+            <a 
+              href="/dashboard/calendar" 
+              className={`block px-4 py-2 rounded-lg transition-colors ${
+                isActive('/dashboard/calendar')
+                  ? 'text-foreground font-medium bg-primary/10 border border-primary/20'
+                  : 'text-foreground hover:bg-secondary'
+              }`}
+            >
               カレンダー
             </a>
-            <a href="/dashboard/map" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
+            <a 
+              href="/dashboard/map" 
+              className={`block px-4 py-2 rounded-lg transition-colors ${
+                isActive('/dashboard/map')
+                  ? 'text-foreground font-medium bg-primary/10 border border-primary/20'
+                  : 'text-foreground hover:bg-secondary'
+              }`}
+            >
               工事マップ
             </a>
-            <a href="/dashboard/faq" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
+            <a 
+              href="/dashboard/faq" 
+              className={`block px-4 py-2 rounded-lg transition-colors ${
+                isActive('/dashboard/faq')
+                  ? 'text-foreground font-medium bg-primary/10 border border-primary/20'
+                  : 'text-foreground hover:bg-secondary'
+              }`}
+            >
               よくある質問
             </a>
-            <a href="/dashboard/inquiry" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
+            <a 
+              href="/dashboard/inquiry" 
+              className={`block px-4 py-2 rounded-lg transition-colors ${
+                isActive('/dashboard/inquiry')
+                  ? 'text-foreground font-medium bg-primary/10 border border-primary/20'
+                  : 'text-foreground hover:bg-secondary'
+              }`}
+            >
               ご質問・ご不安
             </a>
-            <a href="/dashboard/settings" className="block px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
+            <a 
+              href="/dashboard/settings" 
+              className={`block px-4 py-2 rounded-lg transition-colors ${
+                isActive('/dashboard/settings')
+                  ? 'text-foreground font-medium bg-primary/10 border border-primary/20'
+                  : 'text-foreground hover:bg-secondary'
+              }`}
+            >
               設定
             </a>
           </nav>

@@ -1,24 +1,25 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { mockConstructionEvents } from '@/lib/mock-data';
+import { loadEvents } from '@/lib/data-loader';
 import { MapPin, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { ConstructionEvent } from '@/lib/types';
 
 const getTypeColor = (type: string) => {
   switch (type) {
     case 'construction':
-      return 'bg-red-100 border-red-300 text-red-800';
+      return 'bg-destructive/10 border-destructive/20 text-destructive';
     case 'inspection':
-      return 'bg-blue-100 border-blue-300 text-blue-800';
+      return 'bg-primary/10 border-primary/20 text-primary';
     case 'maintenance':
-      return 'bg-yellow-100 border-yellow-300 text-yellow-800';
+      return 'bg-accent/10 border-accent/20 text-accent';
     case 'repair':
-      return 'bg-purple-100 border-purple-300 text-purple-800';
+      return 'bg-accent/10 border-accent/20 text-accent';
     default:
-      return 'bg-gray-100 border-gray-300 text-gray-800';
+      return 'bg-muted border-border text-muted-foreground';
   }
 };
 
@@ -35,13 +36,13 @@ const getTypeLabel = (type: string) => {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'in_progress':
-      return 'border-red-500 bg-red-50';
+      return 'border-destructive bg-destructive/10';
     case 'scheduled':
-      return 'border-blue-500 bg-blue-50';
+      return 'border-accent bg-accent/10';
     case 'completed':
-      return 'border-green-500 bg-green-50';
+      return 'border-primary bg-primary/10';
     default:
-      return 'border-gray-300 bg-gray-50';
+      return 'border-border bg-muted';
   }
 };
 
@@ -49,25 +50,42 @@ export default function MapPage() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showOngoing, setShowOngoing] = useState(true);
   const [showScheduled, setShowScheduled] = useState(true);
+  const [allEvents, setAllEvents] = useState<ConstructionEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const events = await loadEvents();
+        setAllEvents(events);
+      } catch (error) {
+        console.error('Error loading events:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const filteredEvents = useMemo(() => {
-    return mockConstructionEvents.filter(event => {
+    return allEvents.filter(event => {
       if (event.status === 'in_progress' && !showOngoing) return false;
       if (event.status === 'scheduled' && !showScheduled) return false;
       return true;
     });
-  }, [showOngoing, showScheduled]);
+  }, [showOngoing, showScheduled, allEvents]);
 
   const selectedEvent = selectedEventId
-    ? mockConstructionEvents.find(e => e.id === selectedEventId)
+    ? allEvents.find(e => e.id === selectedEventId)
     : null;
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">工事マップ</h1>
-        <p className="text-gray-600 mt-2">建物内の工事・点検エリアを確認できます</p>
+        <h1 className="text-3xl font-bold text-foreground">工事マップ</h1>
+        <p className="text-muted-foreground mt-2">建物内の工事・点検エリアを確認できます</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -83,8 +101,8 @@ export default function MapPage() {
             <CardContent>
               <div className="space-y-4">
                 {/* Building Visual Representation */}
-                <div className="bg-gray-50 p-6 rounded-lg border-2 border-gray-200 min-h-96">
-                  <h3 className="font-semibold text-gray-900 mb-4">35階建てビル</h3>
+                <div className="bg-secondary p-6 rounded-lg border-2 border-border min-h-96">
+                  <h3 className="font-semibold text-foreground mb-4">35階建てビル</h3>
 
                   {/* Floor Representation */}
                   <div className="space-y-2">
@@ -104,13 +122,18 @@ export default function MapPage() {
                           ? '2F (ジム)'
                           : `${floor}F`;
 
+                      const hasInProgress = affectedEvents.some(e => e.status === 'in_progress');
+                      const hasScheduled = affectedEvents.some(e => e.status === 'scheduled');
+
                       return (
                         <div
                           key={floor}
                           className={`p-3 rounded-lg border-2 transition cursor-pointer ${
-                            affectedEvents.length > 0
-                              ? 'bg-yellow-50 border-yellow-300 hover:bg-yellow-100'
-                              : 'bg-green-50 border-green-200 hover:bg-green-100'
+                            hasInProgress
+                              ? getStatusColor('in_progress')
+                              : hasScheduled
+                              ? getStatusColor('scheduled')
+                              : 'bg-muted border-border hover:bg-secondary'
                           }`}
                           onClick={() =>
                             setSelectedEventId(
@@ -121,13 +144,13 @@ export default function MapPage() {
                           }
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-medium text-gray-900">{floorLabel}</span>
+                            <span className="font-medium text-foreground">{floorLabel}</span>
                             {affectedEvents.length > 0 && (
                               <div className="flex gap-1">
                                 {affectedEvents.slice(0, 3).map(event => (
                                   <div
                                     key={event.id}
-                                    className={`w-4 h-4 rounded-full ${getTypeColor(
+                                    className={`w-4 h-4 rounded-full border-2 ${getTypeColor(
                                       event.type
                                     )}`}
                                     title={event.title}
@@ -141,8 +164,8 @@ export default function MapPage() {
                     })}
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-gray-200">
-                    <h4 className="font-semibold text-gray-900 mb-2">凡例</h4>
+                  <div className="mt-6 pt-4 border-t border-border">
+                    <h4 className="font-semibold text-foreground mb-2">凡例</h4>
                     <div className="space-y-1 text-xs">
                       {[
                         { type: 'construction', label: '工事' },
@@ -150,8 +173,8 @@ export default function MapPage() {
                         { type: 'maintenance', label: 'メンテナンス' },
                       ].map(item => (
                         <div key={item.type} className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${getTypeColor(item.type)}`} />
-                          <span className="text-gray-600">{item.label}</span>
+                          <div className={`w-3 h-3 rounded-full border ${getTypeColor(item.type)}`} />
+                          <span className="text-muted-foreground">{item.label}</span>
                         </div>
                       ))}
                     </div>
@@ -159,8 +182,8 @@ export default function MapPage() {
                 </div>
 
                 {/* Filters */}
-                <div className="space-y-3 pt-4 border-t border-gray-200">
-                  <p className="font-semibold text-gray-900 text-sm">フィルター</p>
+                <div className="space-y-3 pt-4 border-t border-border">
+                  <p className="font-semibold text-foreground text-sm">フィルター</p>
                   <div className="space-y-2">
                     <Button
                       variant={showOngoing ? 'default' : 'outline'}
@@ -199,7 +222,7 @@ export default function MapPage() {
                 <div className="space-y-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h3 className="font-semibold text-lg text-gray-900">
+                      <h3 className="font-semibold text-lg text-foreground">
                         {selectedEvent.title}
                       </h3>
                       <Badge className={getTypeColor(selectedEvent.type)}>
@@ -215,9 +238,9 @@ export default function MapPage() {
                     </Badge>
                   </div>
 
-                  <p className="text-gray-700">{selectedEvent.description}</p>
+                  <p className="text-muted-foreground">{selectedEvent.description}</p>
 
-                  <div className="bg-gray-50 p-3 rounded space-y-2 text-sm">
+                  <div className="bg-secondary p-3 rounded space-y-2 text-sm">
                     <p>
                       <strong>期間：</strong>{' '}
                       {selectedEvent.startDate.toLocaleDateString('ja-JP')} ～{' '}
@@ -252,19 +275,19 @@ export default function MapPage() {
                   </div>
 
                   {selectedEvent.contactPerson && selectedEvent.contactPhone && (
-                    <div className="bg-blue-50 p-3 rounded border border-blue-200 space-y-1 text-sm">
-                      <p className="font-semibold text-blue-900">お問い合わせ先</p>
-                      <p className="text-blue-800">
+                    <div className="bg-primary/10 p-3 rounded border border-primary/20 space-y-1 text-sm">
+                      <p className="font-semibold text-primary">お問い合わせ先</p>
+                      <p className="text-foreground">
                         <strong>{selectedEvent.contactPerson}</strong>
                       </p>
-                      <p className="text-blue-800">{selectedEvent.contactPhone}</p>
+                      <p className="text-foreground">{selectedEvent.contactPhone}</p>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">フロアをクリックして詳細を確認</p>
+                  <MapPin className="w-12 h-12 text-muted mx-auto mb-3" />
+                  <p className="text-muted-foreground">フロアをクリックして詳細を確認</p>
                 </div>
               )}
             </CardContent>
@@ -284,15 +307,15 @@ export default function MapPage() {
                     className={`p-3 rounded-lg border-2 cursor-pointer transition ${
                       selectedEventId === event.id
                         ? getStatusColor(event.status) +
-                          ' ring-2 ring-blue-500'
+                          ' ring-2 ring-primary'
                         : getStatusColor(event.status)
                     }`}
                   >
-                    <p className="font-medium text-sm text-gray-900">
+                    <p className="font-medium text-sm text-foreground">
                       {event.title}
                     </p>
-                    <p className="text-xs text-gray-600">
-                      {event.startDate.toLocaleDateString('ja-JP')}
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(event.startDate).toLocaleDateString('ja-JP')}
                     </p>
                   </div>
                 ))}
