@@ -205,7 +205,6 @@ export default function DashboardPage() {
                           )}
                         </div>
                       </div>
-                      </div>
 
                       {relevance && relevance.reasons.length > 0 && (
                         <div className="bg-primary/10 border border-primary/20 p-2 rounded text-xs text-foreground space-y-1">
