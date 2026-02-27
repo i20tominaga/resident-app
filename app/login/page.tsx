@@ -6,7 +6,7 @@ import { useAuth } from '@/app/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, CheckCircle2, Building2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Building2, ShieldCheck, UserCog, User } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
@@ -19,14 +19,23 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    await performLogin(email, password);
+  };
 
+  const performLogin = async (loginEmail: string, loginPassword: string) => {
+    setError('');
     try {
-      await login(email, password);
+      await login(loginEmail, loginPassword);
       router.push('/dashboard');
     } catch (err) {
       setError('ログインに失敗しました。メールアドレスとパスワードをご確認ください。');
     }
+  };
+
+  const handleDemoLogin = async (demoEmail: string, demoPassword: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    await performLogin(demoEmail, demoPassword);
   };
 
   return (
@@ -99,18 +108,60 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Demo Hint */}
+        {/* Demo Accounts */}
         {showHint && (
-          <Alert className="mt-6 bg-secondary border-border">
-            <AlertCircle className="h-4 w-4 text-primary" />
-            <AlertDescription className="text-foreground text-sm">
-              <strong>デモアカウント</strong>
-              <br />
-              メール: resident@example.com
-              <br />
-              パスワード: password123
-            </AlertDescription>
-          </Alert>
+          <div className="mt-8 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground ml-1">
+              <span className="w-1 h-4 bg-primary rounded-full"></span>
+              <span>デモアカウントでクイックログイン</span>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              <Button
+                variant="outline"
+                className="justify-start h-auto py-3 px-4 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group transition-all"
+                onClick={() => handleDemoLogin('admin@example.com', 'adminpass123')}
+                disabled={isLoading}
+              >
+                <div className="bg-primary/10 p-2 rounded-lg mr-3 group-hover:bg-primary/20 transition-colors">
+                  <ShieldCheck className="w-4 h-4 text-primary" />
+                </div>
+                <div className="text-left">
+                  <div className="font-bold text-foreground">管理者としてログイン</div>
+                  <div className="text-xs text-muted-foreground line-clamp-1">admin@example.com / 全機能アクセス可能</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="justify-start h-auto py-3 px-4 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group transition-all"
+                onClick={() => handleDemoLogin('staff@example.com', 'staffpass123')}
+                disabled={isLoading}
+              >
+                <div className="bg-primary/10 p-2 rounded-lg mr-3 group-hover:bg-primary/20 transition-colors">
+                  <UserCog className="w-4 h-4 text-primary" />
+                </div>
+                <div className="text-left">
+                  <div className="font-bold text-foreground">管理スタッフとしてログイン</div>
+                  <div className="text-xs text-muted-foreground line-clamp-1">staff@example.com / 建物・施設管理</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="justify-start h-auto py-3 px-4 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group transition-all"
+                onClick={() => handleDemoLogin('resident@example.com', 'password123')}
+                disabled={isLoading}
+              >
+                <div className="bg-primary/10 p-2 rounded-lg mr-3 group-hover:bg-primary/20 transition-colors">
+                  <User className="w-4 h-4 text-primary" />
+                </div>
+                <div className="text-left">
+                  <div className="font-bold text-foreground">住民としてログイン</div>
+                  <div className="text-xs text-muted-foreground line-clamp-1">resident@example.com / マイページ利用</div>
+                </div>
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </div>
