@@ -23,7 +23,7 @@ export function calculateRelevanceScores(
 
     // 2. Check if event affects user's facilities of interest
     const affectingFacilities = event.affectedFacilities.filter(
-      fac => user.facilitiesOfInterest.includes(fac)
+      fac => user.facilitiesOfInterest?.includes(fac)
     );
     if (affectingFacilities.length > 0) {
       score += 30;
@@ -31,7 +31,7 @@ export function calculateRelevanceScores(
     }
 
     // 3. Check if event timing matches user's time preferences
-    if (event.startTime && event.endTime) {
+    if (event.startTime && event.endTime && user.timePreferences) {
       const eventStartHour = parseInt(event.startTime.split(':')[0]);
       const eventEndHour = parseInt(event.endTime.split(':')[0]);
 
@@ -133,8 +133,8 @@ export function getOngoingEvents(events: ConstructionEvent[]): ConstructionEvent
     .filter(event => event.status === 'in_progress')
     .sort((a, b) => {
       // Sort by end date to show those ending sooner first
-      const dateA = new Date(event.endDate);
-      const dateB = new Date(event.endDate);
+      const dateA = new Date(a.endDate);
+      const dateB = new Date(b.endDate);
       return dateA.getTime() - dateB.getTime();
     });
 }

@@ -3,12 +3,12 @@ export interface User {
   id: string;
   email: string;
   displayName: string;
-  role: 'resident' | 'staff';
+  role: 'resident' | 'staff' | 'admin';
   buildingId: string;
   floorNumber?: number;
   unitNumber?: string;
-  facilitiesOfInterest: string[];
-  timePreferences: TimePreference[];
+  facilitiesOfInterest?: string[];
+  timePreferences?: TimePreference[];
   createdAt: Date;
 }
 

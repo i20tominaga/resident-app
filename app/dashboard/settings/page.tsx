@@ -42,7 +42,7 @@ export default function SettingsPage() {
   }, [user]);
 
   const selectedFacilities = building?.features.filter(f =>
-    user?.facilitiesOfInterest.includes(f.id)
+    user?.facilitiesOfInterest?.includes(f.id)
   ) || [];
 
   const handleSave = async () => {
@@ -340,7 +340,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               {preferences && (
                 <>
-                  {preferences.timePreferences.length > 0 && (
+                  {preferences && preferences.timePreferences && preferences.timePreferences.length > 0 && (
                     <div className="space-y-2 mb-4">
                       {preferences.timePreferences.map((pref, idx) => (
                         <div key={idx} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
