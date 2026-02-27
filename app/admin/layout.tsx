@@ -86,6 +86,13 @@ export default function AdminLayout({
               ダッシュボード
             </a>
             <a
+              href="/admin/buildings"
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            >
+              <Building2 className="w-5 h-5" />
+              建物管理
+            </a>
+            <a
               href="/admin/events"
               className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
             >

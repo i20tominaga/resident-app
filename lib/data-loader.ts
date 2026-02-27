@@ -14,7 +14,7 @@ const convertDatesToObjects = (obj: any): any => {
   if (Array.isArray(obj)) {
     return obj.map(convertDatesToObjects);
   }
-  
+
   if (obj !== null && typeof obj === 'object') {
     const converted: any = {};
     for (const key in obj) {
@@ -30,7 +30,7 @@ const convertDatesToObjects = (obj: any): any => {
     }
     return converted;
   }
-  
+
   return obj;
 };
 
@@ -41,11 +41,11 @@ export async function loadBuildings(): Promise<Building[]> {
   }
 
   try {
-    const response = await fetch('/data/buildings.json');
+    const response = await fetch('/api/buildings');
     if (!response.ok) throw new Error('Failed to load buildings');
     const data = await response.json();
-    dataCache.buildings = convertDatesToObjects(data.buildings);
-    return dataCache.buildings;
+    dataCache.buildings = convertDatesToObjects(data.buildings) as Building[];
+    return dataCache.buildings || [];
   } catch (error) {
     console.error('Error loading buildings:', error);
     return [];
@@ -59,11 +59,11 @@ export async function loadUsers(): Promise<User[]> {
   }
 
   try {
-    const response = await fetch('/data/users.json');
+    const response = await fetch('/api/users');
     if (!response.ok) throw new Error('Failed to load users');
     const data = await response.json();
-    dataCache.users = convertDatesToObjects(data.users);
-    return dataCache.users;
+    dataCache.users = convertDatesToObjects(data.users) as User[];
+    return dataCache.users || [];
   } catch (error) {
     console.error('Error loading users:', error);
     return [];
@@ -77,11 +77,11 @@ export async function loadEvents(): Promise<ConstructionEvent[]> {
   }
 
   try {
-    const response = await fetch('/data/events.json');
+    const response = await fetch('/api/events');
     if (!response.ok) throw new Error('Failed to load events');
     const data = await response.json();
-    dataCache.events = convertDatesToObjects(data.events);
-    return dataCache.events;
+    dataCache.events = convertDatesToObjects(data.events) as ConstructionEvent[];
+    return dataCache.events || [];
   } catch (error) {
     console.error('Error loading events:', error);
     return [];
@@ -95,11 +95,11 @@ export async function loadFAQs(): Promise<FAQ[]> {
   }
 
   try {
-    const response = await fetch('/data/faqs.json');
+    const response = await fetch('/api/faqs');
     if (!response.ok) throw new Error('Failed to load FAQs');
     const data = await response.json();
-    dataCache.faqs = convertDatesToObjects(data.faqs);
-    return dataCache.faqs;
+    dataCache.faqs = convertDatesToObjects(data.faqs) as FAQ[];
+    return dataCache.faqs || [];
   } catch (error) {
     console.error('Error loading FAQs:', error);
     return [];
@@ -113,11 +113,11 @@ export async function loadNotifications(): Promise<Notification[]> {
   }
 
   try {
-    const response = await fetch('/data/notifications.json');
+    const response = await fetch('/api/notifications');
     if (!response.ok) throw new Error('Failed to load notifications');
     const data = await response.json();
-    dataCache.notifications = convertDatesToObjects(data.notifications);
-    return dataCache.notifications;
+    dataCache.notifications = convertDatesToObjects(data.notifications) as Notification[];
+    return dataCache.notifications || [];
   } catch (error) {
     console.error('Error loading notifications:', error);
     return [];
@@ -145,7 +145,7 @@ export async function getFAQsByBuilding(buildingId: string): Promise<FAQ[]> {
 // Get notifications for a user
 export async function getNotificationsByUser(userId: string): Promise<Notification[]> {
   const notifications = await loadNotifications();
-  return notifications.filter(n => n.userId === userId).sort((a, b) => 
+  return notifications.filter(n => n.userId === userId).sort((a, b) =>
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 }

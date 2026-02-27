@@ -7,6 +7,7 @@
       "totalFloors": 35,
       "totalUnits": 280,
       "managementCompany": "三菱地所リアルティ",
+      "basementFloors": 1,
       "features": [
         {
           "id": "fac-001",
@@ -37,6 +38,29 @@
           "type": "common"
         }
       ]
+    },
+    {
+      "name": "検証用ビル",
+      "address": "千代田区1-1",
+      "managementCompany": "検証管理",
+      "totalFloors": 10,
+      "basementFloors": 1,
+      "totalUnits": 20,
+      "features": [
+        {
+          "name": "駐車場",
+          "type": "parking",
+          "floor": -1,
+          "buildingId": "bldg-002"
+        },
+        {
+          "name": "ロビー",
+          "type": "lobby",
+          "floor": 1,
+          "buildingId": "bldg-002"
+        }
+      ],
+      "id": "bldg-002"
     }
   ]
 }

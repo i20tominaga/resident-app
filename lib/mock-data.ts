@@ -9,6 +9,7 @@ export const mockBuildings: Building[] = [
     totalFloors: 35,
     totalUnits: 280,
     managementCompany: '三菱地所リアルティ',
+    basementFloors: 1,
     features: [
       { id: 'fac-001', name: '駐車場 B1F', buildingId: 'bldg-001', floor: -1, type: 'parking' },
       { id: 'fac-002', name: 'フィットネスジム', buildingId: 'bldg-001', floor: 2, type: 'gym' },

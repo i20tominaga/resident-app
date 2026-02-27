@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockBuildings } from '@/lib/mock-data';
+import { loadBuildings } from '@/lib/data-loader';
+import { Building } from '@/lib/types';
 import { CheckCircle2, Settings, Bell, MapPin, User, Trash2, Plus } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getUserPreferences, updateNotificationSettings, addTimePreference, removeTimePreference } from '@/lib/user-preferences';
@@ -20,6 +21,7 @@ export default function SettingsPage() {
     unitNumber: user?.unitNumber || '',
   });
   const [preferences, setPreferences] = useState(user ? getUserPreferences(user.id) : null);
+  const [building, setBuilding] = useState<Building | null>(null);
   const [newTimeStart, setNewTimeStart] = useState('');
   const [newTimeEnd, setNewTimeEnd] = useState('');
   const [newTimeLabel, setNewTimeLabel] = useState('');
@@ -27,10 +29,18 @@ export default function SettingsPage() {
   useEffect(() => {
     if (user) {
       setPreferences(getUserPreferences(user.id));
+
+      const fetchBuilding = async () => {
+        const buildings = await loadBuildings();
+        const currentBuilding = buildings.find(b => b.id === user.buildingId);
+        if (currentBuilding) {
+          setBuilding(currentBuilding);
+        }
+      };
+      fetchBuilding();
     }
   }, [user]);
 
-  const building = mockBuildings.find(b => b.id === user?.buildingId);
   const selectedFacilities = building?.features.filter(f =>
     user?.facilitiesOfInterest.includes(f.id)
   ) || [];
@@ -171,7 +181,11 @@ export default function SettingsPage() {
                   <strong>建物規模</strong>
                 </p>
                 <p className="text-gray-900">
-                  {building?.totalFloors}階建て、{building?.totalUnits}戸
+                  {building?.totalFloors}階建て
+                  {building?.basementFloors && building.basementFloors > 0
+                    ? `（地上${building.totalFloors}階 / 地下${building.basementFloors}階）`
+                    : ''}
+                  、{building?.totalUnits}戸
                 </p>
               </div>
             </CardContent>
@@ -434,9 +448,11 @@ export default function SettingsPage() {
                     <div key={facility.id} className="text-sm">
                       <p className="font-medium text-gray-900">{facility.name}</p>
                       <p className="text-gray-600 text-xs">
-                        {facility.floor
-                          ? `${facility.floor}F`
-                          : 'B1F'}
+                        {facility.floor !== undefined
+                          ? facility.floor < 0
+                            ? `B${Math.abs(facility.floor)}F`
+                            : `${facility.floor}F`
+                          : '不明'}
                       </p>
                     </div>
                   ))

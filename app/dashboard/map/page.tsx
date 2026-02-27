@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { loadEvents, loadBuildings } from '@/lib/data-loader';
 import { MapPin, AlertTriangle, Eye, EyeOff } from 'lucide-react';
-import { ConstructionEvent, Facility } from '@/lib/types';
+import { ConstructionEvent, Facility, Building } from '@/lib/types';
+import { useAuth } from '@/app/auth-context';
 
 const getTypeColor = (type: string) => {
   switch (type) {
@@ -47,21 +48,30 @@ const getStatusColor = (status: string) => {
 };
 
 export default function MapPage() {
+  const { user } = useAuth();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showOngoing, setShowOngoing] = useState(true);
   const [showScheduled, setShowScheduled] = useState(true);
   const [allEvents, setAllEvents] = useState<ConstructionEvent[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [building, setBuilding] = useState<Building | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const [events, buildings] = await Promise.all([loadEvents(), loadBuildings()]);
-        setAllEvents(events);
-        // Collect all facilities from all buildings
-        const allFacilities = buildings.flatMap(b => b.features || []);
-        setFacilities(allFacilities);
+
+        // Find current user's building
+        const currentBuilding = buildings.find(b => b.id === user?.buildingId) || buildings[0];
+        setBuilding(currentBuilding);
+
+        // Filter events for this building
+        const buildingEvents = events.filter(e => e.buildingId === currentBuilding.id);
+        setAllEvents(buildingEvents);
+
+        // Collect facilities for this building
+        setFacilities(currentBuilding.features || []);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -110,32 +120,58 @@ export default function MapPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
-                シティタワー東京
+                {building?.name || '建物マップ'}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {/* Building Visual Representation */}
                 <div className="bg-secondary p-6 rounded-lg border-2 border-border min-h-96">
-                  <h3 className="font-semibold text-foreground mb-4">35階建てビル</h3>
+                  <h3 className="font-semibold text-foreground mb-4">
+                    {building ? `${building.totalFloors}階建てビル` : '読み込み中...'}
+                  </h3>
 
                   {/* Floor Representation */}
                   <div className="space-y-2">
                     {/* Affected Areas Highlighted */}
-                    {[30, 25, 20, 15, 10, 5, 1, -1].map(floor => {
+                    {useMemo(() => {
+                      if (!building) return [];
+                      const floors = [];
+                      // Above ground floors
+                      for (let i = building.totalFloors; i >= 1; i--) {
+                        // For large buildings, we might want to skip some floors in the UI
+                        // but for now let's show all or a representative set
+                        if (building.totalFloors > 10) {
+                          // If very tall, only show top, bottom, and multiples of 5
+                          if (i === building.totalFloors || i === 1 || i % 5 === 0) {
+                            floors.push(i);
+                          }
+                        } else {
+                          floors.push(i);
+                        }
+                      }
+                      // Basement floors
+                      if (building.basementFloors) {
+                        for (let i = -1; i >= -building.basementFloors; i--) {
+                          floors.push(i);
+                        }
+                      }
+                      return floors;
+                    }, [building]).map(floor => {
                       const affectedEvents = filteredEvents.filter(event =>
                         event.affectedFloors.includes(floor) ||
                         event.affectedFacilities.some(facId => facilityFloorMap.get(facId) === floor)
                       );
 
+                      // Find a representative facility name for this floor if it exists
+                      const floorFacility = facilities.find(f => f.floor === floor);
+
                       const floorLabel =
-                        floor === -1
-                          ? 'B1F (駐車場)'
-                          : floor === 1
-                            ? '1F (ロビー)'
-                            : floor === 2
-                              ? '2F (ジム)'
-                              : `${floor}F`;
+                        floor < 0
+                          ? `B${Math.abs(floor)}F${floorFacility ? ` (${floorFacility.name})` : ''}`
+                          : floor === 1 && floorFacility
+                            ? `1F (${floorFacility.name})`
+                            : `${floor}F${floorFacility ? ` (${floorFacility.name})` : ''}`;
 
                       const hasInProgress = affectedEvents.some(e => e.status === 'in_progress');
                       const hasScheduled = affectedEvents.some(e => e.status === 'scheduled');

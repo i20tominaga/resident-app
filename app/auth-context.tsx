@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Fetch user from JSON data
       const dbUser = await getUserByEmail(email);
-      
+
       if (!dbUser) {
         throw new Error('Invalid credentials');
       }
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Remove password from client-side storage
       const { password: _, ...userWithoutPassword } = userWithPassword;
-      
+
       setUser(userWithoutPassword as User);
       localStorage.setItem('auth_user', JSON.stringify(userWithoutPassword));
     } finally {
@@ -61,22 +61,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (email: string, password: string, displayName: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newUser: User = {
-        id: `user-${Date.now()}`,
-        email,
-        displayName,
-        role: 'resident',
-        buildingId: 'bldg-001',
-        facilitiesOfInterest: [],
-        timePreferences: [],
-        createdAt: new Date(),
-      };
-      
-      setUser(newUser);
-      localStorage.setItem('auth_user', JSON.stringify(newUser));
+      // Get buildingId from pending invite if present in URL
+      const searchParams = new URLSearchParams(window.location.search);
+      const code = searchParams.get('code');
+      let buildingId = 'bldg-001'; // Default
+
+      if (code) {
+        const inviteResponse = await fetch(`/api/invites?code=${code}`);
+        if (inviteResponse.ok) {
+          const inviteData = await inviteResponse.json();
+          buildingId = inviteData.invite.buildingId;
+        }
+      }
+
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          displayName,
+          role: 'resident',
+          buildingId,
+          facilitiesOfInterest: [],
+          timePreferences: [],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Signup failed');
+      }
+
+      const data = await response.json();
+      const { password: _, ...userWithoutPassword } = data.user;
+
+      setUser(userWithoutPassword);
+      localStorage.setItem('auth_user', JSON.stringify(userWithoutPassword));
     } finally {
       setIsLoading(false);
     }

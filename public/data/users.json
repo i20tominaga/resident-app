@@ -9,7 +9,10 @@
       "buildingId": "bldg-001",
       "floorNumber": 15,
       "unitNumber": "1501",
-      "facilitiesOfInterest": ["fac-002", "fac-003"],
+      "facilitiesOfInterest": [
+        "fac-002",
+        "fac-003"
+      ],
       "timePreferences": [
         {
           "startHour": 7,
@@ -41,6 +44,17 @@
       "role": "admin",
       "buildingId": "bldg-001",
       "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "email": "test-resident@example.com",
+      "password": "password123",
+      "displayName": "検証住民",
+      "role": "resident",
+      "buildingId": "bldg-001",
+      "facilitiesOfInterest": [],
+      "timePreferences": [],
+      "id": "user-1772189665873",
+      "createdAt": "2026-02-27T10:54:25.873Z"
     }
   ]
 }

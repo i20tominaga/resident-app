@@ -26,6 +26,7 @@ export interface Building {
   totalFloors: number;
   totalUnits: number;
   managementCompany: string;
+  basementFloors?: number;
   features: Facility[];
 }
 
