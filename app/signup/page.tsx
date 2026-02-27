@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/app/auth-context';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { AlertCircle, Building2, UserPlus, CheckCircle2, ArrowRight } from 'luci
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
 
-export default function SignupPage() {
+function SignupForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const code = searchParams.get('code');
@@ -55,7 +55,6 @@ export default function SignupPage() {
 
         try {
             await signup(email, password, displayName);
-            // Auth context will redirect or we can do it here
             router.push('/dashboard');
         } catch (err: any) {
             setError(err.message || '登録に失敗しました。');
@@ -184,5 +183,20 @@ export default function SignupPage() {
                 </Card>
             </div>
         </div>
+    );
+}
+
+export default function SignupPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <Building2 className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-pulse" />
+                    <p className="text-gray-600">読み込み中...</p>
+                </div>
+            </div>
+        }>
+            <SignupForm />
+        </Suspense>
     );
 }
